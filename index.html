@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Càlcul de seccions · 0962 Sistemes de potència</title>
+<link rel="icon" href="assets/icon.svg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --ink: #1d2433; --muted: #5d6677; --line: #dfe3ea;
+    --accent: #1f6feb; --accent-soft: #e8f0fe; --ok: #1a7f37; --ok-soft: #e6f4ea;
+    --warn: #b35900; --warn-soft: #fff4e5; --bad: #c62828; --bad-soft: #fdecea;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header img { width: 36px; height: 36px; }
+  header h1 { font-size: 1.2rem; margin: 0; }
+  header .sub { color: var(--muted); font-size: .85rem; }
+  nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+  nav button { border: 1px solid var(--line); background: var(--card); padding: 8px 14px; border-radius: 999px; cursor: pointer; font: inherit; color: var(--ink); }
+  nav button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  main { max-width: 1000px; margin: 0 auto; padding: 20px; }
+  section.tab { display: none; }
+  section.tab.active { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
+  .card h2 { margin-top: 0; font-size: 1.15rem; }
+  .card h3 { font-size: 1rem; margin-bottom: 6px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 4px; }
+  input, select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); }
+  input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; min-width: 0; }
+  .btn { border: 1px solid var(--accent); background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 7px; cursor: pointer; font: inherit; }
+  .btn.ghost { background: #fff; color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .warn { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .bad { background: var(--bad-soft); border-left: 4px solid var(--bad); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .okbox { background: var(--ok-soft); border-left: 4px solid var(--ok); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: center; }
+  th { background: #f0f2f6; }
+  tr.hl td { background: var(--ok-soft); font-weight: 600; }
+  tr.dim td { color: #a0a7b4; }
+  .step { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .step h4 { margin: 0; padding: 8px 12px; background: #f0f2f6; font-size: .95rem; display: flex; gap: 8px; align-items: center; }
+  .step h4 .num { background: var(--accent); color: #fff; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0; }
+  .step .body { padding: 8px 14px; }
+  .step .body p { margin: 6px 0; }
+  .result { font-weight: 700; color: var(--accent); }
+  .big { font-size: 1.3rem; font-weight: 700; }
+  .statement { font-size: 1.05rem; background: #fbfcfe; border: 1px dashed var(--line); padding: 14px; border-radius: 8px; }
+  .answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+  .answers label.ok input { border-color: var(--ok); background: var(--ok-soft); }
+  .answers label.ko input, .answers label.ko select { border-color: var(--bad); background: var(--bad-soft); }
+  .fb { font-size: .8rem; min-height: 1em; }
+  .fb.ok { color: var(--ok); } .fb.ko { color: var(--bad); }
+  .score { color: var(--muted); font-size: .9rem; }
+  .bar { height: 18px; background: #eef0f4; border-radius: 9px; overflow: hidden; position: relative; }
+  .bar > div { height: 100%; transition: width .2s, background .2s; }
+  .bar .mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); opacity: .35; }
+  .kv { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--line); padding: 3px 0; }
+  details summary { cursor: pointer; font-weight: 600; }
+  ul.compact { margin: 4px 0; padding-left: 20px; }
+  .katex-display { margin: .5em 0; overflow-x: auto; overflow-y: hidden; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px; }
+  #printArea { display: none; }
+  @media print {
+    body.printing > *:not(#printArea) { display: none !important; }
+    body.printing #printArea { display: block; padding: 0 10mm; }
+    #printArea .ex { page-break-inside: avoid; margin-bottom: 14px; }
+    #printArea .pb { page-break-before: always; }
+    .step { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/icon.svg" alt="">
+  <div>
+    <h1>Càlcul de seccions de conductors</h1>
+    <div class="sub">0962 Sistemes de potència · RA1 · 1.9 Càlcul de seccions</div>
+  </div>
+  <nav>
+    <button data-tab="teoria" class="active">📘 Teoria</button>
+    <button data-tab="lab">🔬 Laboratori</button>
+    <button data-tab="calc">🧮 Calculadora</button>
+    <button data-tab="exer">✏️ Exercicis</button>
+    <button data-tab="taules">📋 Taules</button>
+  </nav>
+</header>
+
+<main>
+<!-- ============================== TEORIA ============================== -->
+<section class="tab active" id="teoria">
+  <div class="card">
+    <h2>Per què cal calcular la secció?</h2>
+    <p>La secció d'un conductor s'ha de seleccionar perquè la instal·lació funcioni de forma <b>segura</b> i <b>adequada</b>. Es comproven dos criteris:</p>
+    <ol>
+      <li><b>Caiguda de tensió</b>: el receptor ha de rebre una tensió prou propera a la nominal.</li>
+      <li><b>Intensitat màxima admissible</b> (criteri tèrmic): el conductor no es pot escalfar per sobre del que suporta el seu aïllament.</li>
+    </ol>
+    <div class="note"><b>Criteri final:</b> s'escull la <b>secció normalitzada</b> que compleixi <u>simultàniament</u> tots dos criteris, és a dir, la <b>més gran</b> de les dues seccions obtingudes.</div>
+  </div>
+
+  <div class="card">
+    <h2>1.9.1. Càlcul per caiguda de tensió</h2>
+    <p>Quan circula corrent per un conductor apareix una caiguda de tensió deguda a la seva resistència. Aquesta caiguda depèn de la <b>longitud</b>, la <b>secció</b>, el <b>material</b>, la <b>intensitat</b> i la <b>potència</b> transportada.</p>
+    <p>La resistència d'un conductor és:</p>
+    $$R=\rho\,\frac{L}{S}=\frac{L}{\gamma\,S}\qquad\text{amb}\qquad \gamma=\frac{1}{\rho}$$
+    <p>Com més llarg és el conductor, més resistència; com més secció, menys resistència.</p>
+
+    <div class="two">
+      <div>
+        <h3>Línia monofàsica</h3>
+        <p>Utilitzant la potència:</p>
+        $$S=\frac{2\,P\,L}{\gamma\,U\,e}$$
+        <p>Utilitzant la intensitat:</p>
+        $$S=\frac{2\,L\,I\cos\varphi}{\gamma\,e}$$
+      </div>
+      <div>
+        <h3>Línia trifàsica</h3>
+        <p>Utilitzant la potència:</p>
+        $$S=\frac{P\,L}{\gamma\,U\,e}$$
+        <p>Utilitzant la intensitat:</p>
+        $$S=\frac{\sqrt{3}\,L\,I\cos\varphi}{\gamma\,e}$$
+      </div>
+    </div>
+
+    <table style="margin-top:10px">
+      <tr><th>Símbol</th><th>Magnitud</th><th>Unitat</th></tr>
+      <tr><td>\(S\)</td><td>Secció del conductor</td><td>mm²</td></tr>
+      <tr><td>\(P\)</td><td>Potència activa</td><td><b>W</b> (no kW!)</td></tr>
+      <tr><td>\(L\)</td><td>Longitud de la línia (només anada)</td><td>m</td></tr>
+      <tr><td>\(\gamma\)</td><td>Conductivitat del material</td><td>m/(Ω·mm²)</td></tr>
+      <tr><td>\(U\)</td><td>Tensió nominal (en trifàsic, la tensió de línia)</td><td>V</td></tr>
+      <tr><td>\(e\)</td><td>Caiguda de tensió admissible</td><td><b>V</b> (no %!)</td></tr>
+      <tr><td>\(I\)</td><td>Intensitat</td><td>A</td></tr>
+      <tr><td>\(\cos\varphi\)</td><td>Factor de potència</td><td>—</td></tr>
+    </table>
+
+    <h3 style="margin-top:16px">Passar la caiguda de tensió de % a volts</h3>
+    <p>Normalment la caiguda màxima es dona en percentatge de la tensió nominal:</p>
+    $$e=\frac{e\,(\%)}{100}\cdot U$$
+    <p>Exemple: un 3 % a 230 V → \(e=0{,}03\cdot 230=6{,}9\ \text{V}\).</p>
+
+    <details style="margin-top:12px">
+      <summary>D'on surten aquestes fórmules? (deducció)</summary>
+      <div class="two" style="margin-top:10px">
+        <div>
+          <h3>Monofàsic</h3>
+          <p>El corrent <b>va per la fase i torna pel neutre</b>: recorre una longitud \(2L\). Negligint la reactància de la línia:</p>
+          $$e = 2\,R\,I\cos\varphi=\frac{2\,L\,I\cos\varphi}{\gamma\,S}$$
+          <p>Aïllant \(S\):</p>
+          $$S=\frac{2\,L\,I\cos\varphi}{\gamma\,e}$$
+          <p>I si substituïm \(I=\dfrac{P}{U\cos\varphi}\), el \(\cos\varphi\) se simplifica:</p>
+          $$S=\frac{2\,P\,L}{\gamma\,U\,e}$$
+        </div>
+        <div>
+          <h3>Trifàsic equilibrat</h3>
+          <p>En un sistema equilibrat el neutre no porta corrent. La caiguda de tensió <b>entre fases</b> és \(\sqrt{3}\) vegades la caiguda en un conductor:</p>
+          $$e=\sqrt{3}\,R\,I\cos\varphi=\frac{\sqrt{3}\,L\,I\cos\varphi}{\gamma\,S}$$
+          $$S=\frac{\sqrt{3}\,L\,I\cos\varphi}{\gamma\,e}$$
+          <p>Substituint \(I=\dfrac{P}{\sqrt{3}\,U\cos\varphi}\), el \(\sqrt{3}\) i el \(\cos\varphi\) se simplifiquen:</p>
+          $$S=\frac{P\,L}{\gamma\,U\,e}$$
+        </div>
+      </div>
+      <div class="note">Les dues versions (amb potència o amb intensitat) donen <b>exactament el mateix resultat</b>. Fes servir la que s'adapti a les dades que tinguis.</div>
+    </details>
+
+    <h3 style="margin-top:16px">Conductivitat orientativa \(\gamma\) en m/(Ω·mm²)</h3>
+    <table>
+      <tr><th>Material</th><th>20 °C</th><th>70 °C</th><th>90 °C</th></tr>
+      <tr><td>Coure (Cu)</td><td>56</td><td>48</td><td>44</td></tr>
+      <tr><td>Alumini (Al)</td><td>35</td><td>30</td><td>28</td></tr>
+    </table>
+    <p>La conductivitat <b>disminueix quan augmenta la temperatura</b>. Per anar del costat de la seguretat es pren la temperatura màxima de servei de l'aïllament: <b>70 °C per al PVC</b> i <b>90 °C per a l'XLPE/EPR</b>.</p>
+
+    <details>
+      <summary>Valors habituals de caiguda de tensió màxima (REBT, orientatiu)</summary>
+      <ul class="compact">
+        <li>Instal·lacions interiors en habitatges (ITC-BT-19): <b>3 %</b>.</li>
+        <li>Altres instal·lacions interiors: <b>3 %</b> enllumenat, <b>5 %</b> altres usos.</li>
+        <li>Derivació individual (ITC-BT-15): 1 % (comptadors centralitzats), 0,5 % (parcialment centralitzats), 1,5 % (un sol usuari sense LGA).</li>
+        <li>Línia general d'alimentació (ITC-BT-14): 0,5 % (comptadors centralitzats), 1 % (parcialment centralitzats).</li>
+      </ul>
+      <p class="score">Consulta sempre la ITC vigent i l'enunciat de l'exercici.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>1.9.2. Càlcul per intensitat màxima admissible</h2>
+    <p>Un conductor no pot transportar de forma permanent una intensitat superior a la que pot suportar tèrmicament. Si la intensitat és excessiva:</p>
+    <ul class="compact">
+      <li>augmenta la temperatura;</li>
+      <li>es deteriora l'aïllament;</li>
+      <li>es redueix la vida útil;</li>
+      <li>pot existir risc d'incendi.</li>
+    </ul>
+    <div class="two">
+      <div>
+        <h3>Intensitat en monofàsic</h3>
+        $$I=\frac{P}{U\cos\varphi}$$
+      </div>
+      <div>
+        <h3>Intensitat en trifàsic</h3>
+        $$I=\frac{P}{\sqrt{3}\,U\cos\varphi}$$
+      </div>
+    </div>
+    <p>Un cop calculada la intensitat, es consulta la <b>taula d'intensitats màximes admissibles</b> i es busca la <b>primera secció</b> la intensitat admissible de la qual sigui <b>igual o superior</b> a la intensitat calculada: \(I_{adm}\ge I\).</p>
+    <p>La intensitat admissible depèn de:</p>
+    <ul class="compact">
+      <li>material del conductor (Cu, Al);</li>
+      <li>secció;</li>
+      <li>tipus d'aïllament (PVC, XLPE);</li>
+      <li>temperatura ambient;</li>
+      <li>sistema d'instal·lació (en tub, en safata, soterrat…);</li>
+      <li>nombre de conductors carregats: <b>2 en monofàsic</b> (fase + neutre), <b>3 en trifàsic</b> equilibrat.</li>
+    </ul>
+    <p>A la pestanya <b>📋 Taules</b> tens la taula orientativa que fa servir aquesta aplicació.</p>
+  </div>
+
+  <div class="card">
+    <h2>Procediment pas a pas</h2>
+    <ol>
+      <li>Escriu les dades i passa-les a les unitats correctes (P en W, e en V).</li>
+      <li>Calcula la caiguda de tensió admissible en volts: \(e=\frac{e(\%)}{100}\,U\).</li>
+      <li>Tria la conductivitat \(\gamma\) segons el material i la temperatura de l'aïllament.</li>
+      <li>Calcula la secció per caiguda de tensió amb la fórmula monofàsica o trifàsica.</li>
+      <li>Escull la secció normalitzada <b>immediatament superior</b>.</li>
+      <li>Calcula la intensitat de la línia.</li>
+      <li>Busca a la taula la secció amb \(I_{adm}\ge I\).</li>
+      <li>La secció definitiva és la <b>més gran</b> de les dues.</li>
+      <li>Comprova la caiguda de tensió real amb la secció escollida.</li>
+    </ol>
+    <p>Seccions normalitzades (mm²): <b>1,5 · 2,5 · 4 · 6 · 10 · 16 · 25 · 35 · 50 · 70 · 95 · 120</b>…</p>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Errors típics</h2>
+    <ul>
+      <li>Posar la potència en <b>kW</b> en lloc de W (el resultat surt 1000 vegades més petit).</li>
+      <li>Posar la caiguda de tensió en <b>%</b> en lloc de volts.</li>
+      <li>Oblidar el <b>2</b> de la fórmula monofàsica, o posar-lo a la trifàsica.</li>
+      <li>En trifàsic, fer servir 230 V en lloc de la tensió de línia (400 V).</li>
+      <li>Arrodonir cap avall: si surt 3,2 mm², la secció és <b>4 mm²</b>, no 2,5 mm².</li>
+      <li>Quedar-se només amb un criteri: cal comprovar <b>sempre els dos</b>.</li>
+      <li>Fer servir la columna de 2 conductors carregats en una línia trifàsica.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== LABORATORI ============================== -->
+<section class="tab" id="lab">
+  <div class="card">
+    <h2>🔬 Laboratori: què passa si…?</h2>
+    <p>Mou els controls i observa com canvien la caiguda de tensió i l'escalfament del conductor. Intenta respondre: <i>què passa si doblo la longitud? i si doblo la secció?</i></p>
+    <div class="grid">
+      <label>Sistema
+        <select id="labSys"><option value="mono">Monofàsic 230 V</option><option value="tri">Trifàsic 400 V</option></select>
+      </label>
+      <label>Potència: <b id="labPv"></b>
+        <input type="range" id="labP" min="500" max="40000" step="100" value="3000">
+      </label>
+      <label>Longitud: <b id="labLv"></b>
+        <input type="range" id="labL" min="5" max="200" step="5" value="30">
+      </label>
+      <label>Secció: <b id="labSv"></b>
+        <input type="range" id="labS" min="0" max="11" step="1" value="1">
+      </label>
+      <label>cos φ: <b id="labCv"></b>
+        <input type="range" id="labC" min="0.7" max="1" step="0.01" value="1">
+      </label>
+      <label>Límit de caiguda
+        <select id="labLim"><option value="3">3 %</option><option value="5">5 %</option><option value="1.5">1,5 %</option><option value="1">1 %</option></select>
+      </label>
+    </div>
+    <p class="score">Conductor de coure, aïllament PVC (γ = 48 a 70 °C), en tub sobre paret (mètode B1).</p>
+    <div class="two" style="margin-top:12px">
+      <div>
+        <h3>Caiguda de tensió</h3>
+        <div class="bar"><div id="labBarE"></div><span class="mark" id="labMarkE"></span></div>
+        <div id="labOutE" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <h3>Escalfament (I / I<sub>adm</sub>)</h3>
+        <div class="bar"><div id="labBarI"></div><span class="mark" style="left:100%"></span></div>
+        <div id="labOutI" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div id="labMsg"></div>
+  </div>
+</section>
+
+<!-- ============================== CALCULADORA ============================== -->
+<section class="tab" id="calc">
+  <div class="card">
+    <h2>🧮 Calculadora pas a pas</h2>
+    <p>Introdueix les dades d'una línia i veuràs tota la resolució explicada.</p>
+    <div class="grid">
+      <label>Sistema
+        <select id="cSys"><option value="mono">Monofàsic</option><option value="tri">Trifàsic</option></select>
+      </label>
+      <label>Tensió U (V)
+        <input id="cU" value="230" inputmode="decimal">
+      </label>
+      <label>Dada coneguda
+        <select id="cGiven"><option value="P">Potència P</option><option value="I">Intensitat I</option></select>
+      </label>
+      <label id="cPwrap">Potència
+        <div class="row"><input id="cP" value="3000" inputmode="decimal"><select id="cPu" style="flex:0 0 70px"><option value="1">W</option><option value="1000">kW</option></select></div>
+      </label>
+      <label id="cIwrap" style="display:none">Intensitat I (A)
+        <input id="cI" value="15" inputmode="decimal">
+      </label>
+      <label>cos φ
+        <input id="cCos" value="1" inputmode="decimal">
+      </label>
+      <label>Longitud L (m)
+        <input id="cL" value="30" inputmode="decimal">
+      </label>
+      <label>Caiguda màx. (%)
+        <input id="cPct" value="3" inputmode="decimal">
+      </label>
+      <label>Material
+        <select id="cMat"><option value="Cu">Coure (Cu)</option><option value="Al">Alumini (Al)</option></select>
+      </label>
+      <label>Aïllament
+        <select id="cIns"><option value="PVC">PVC (70 °C)</option><option value="XLPE">XLPE (90 °C)</option></select>
+      </label>
+      <label>Temperatura per a γ
+        <select id="cT"><option value="70">70 °C</option><option value="90">90 °C</option><option value="20">20 °C</option></select>
+      </label>
+    </div>
+    <div id="cErr"></div>
+  </div>
+  <div class="card">
+    <h2>Resolució</h2>
+    <div id="cOut"></div>
+  </div>
+</section>
+
+<!-- ============================== EXERCICIS ============================== -->
+<section class="tab" id="exer">
+  <div class="card">
+    <h2>✏️ Generador d'exercicis</h2>
+    <div class="grid">
+      <label>Tipus de línia
+        <select id="eSys"><option value="any">Aleatori</option><option value="mono">Monofàsica</option><option value="tri">Trifàsica</option></select>
+      </label>
+      <label>Nivell
+        <select id="eLvl">
+          <option value="1">1 · Bàsic (coure, PVC, dada P)</option>
+          <option value="2" selected>2 · Mitjà (PVC o XLPE)</option>
+          <option value="3">3 · Avançat (Cu/Al, dada P o I)</option>
+        </select>
+      </label>
+    </div>
+    <div class="btns">
+      <button class="btn" id="eNew">🎲 Nou exercici</button>
+      <button class="btn ghost" id="ePrint">🖨️ Fitxa imprimible (6 exercicis + solucions)</button>
+    </div>
+    <p class="score" id="eScore"></p>
+  </div>
+
+  <div class="card" id="eCard" style="display:none">
+    <h2>Enunciat</h2>
+    <div class="statement" id="eStmt"></div>
+    <h3 style="margin-top:16px">Les teves respostes</h3>
+    <p class="score">Fes servir la calculadora de la teva taula o del mòbil. Pots escriure decimals amb coma. Es dona per bo un error de ±2 % per arrodoniments.</p>
+    <div class="answers" id="eAns"></div>
+    <div class="btns">
+      <button class="btn" id="eCheck">✅ Comprova</button>
+      <button class="btn ghost" id="eHint">💡 Mostra el pas següent</button>
+      <button class="btn ghost" id="eAll">📖 Mostra la solució completa</button>
+    </div>
+    <div id="eFeedback"></div>
+  </div>
+
+  <div class="card" id="eSolCard" style="display:none">
+    <h2>Solució pas a pas</h2>
+    <div id="eSol"></div>
+  </div>
+</section>
+
+<!-- ============================== TAULES ============================== -->
+<section class="tab" id="taules">
+  <div class="card">
+    <h2>📋 Intensitats màximes admissibles (A)</h2>
+    <p>Taula orientativa per a conductors aïllats <b>en tub sobre paret</b> (mètode de referència B1), temperatura ambient 30 °C, segons UNE-HD 60364-5-52 / ITC-BT-19. <b>Consulta sempre la taula oficial</b> per a cada sistema d'instal·lació.</p>
+    <p>Columnes: <b>PVC2 / XLPE2</b> = 2 conductors carregats (línies <b>monofàsiques</b>). <b>PVC3 / XLPE3</b> = 3 conductors carregats (línies <b>trifàsiques</b>).</p>
+    <div class="two">
+      <div><h3>Coure (Cu)</h3><div id="tCu"></div></div>
+      <div><h3>Alumini (Al)</h3><div id="tAl"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Conductivitat γ — m/(Ω·mm²)</h2>
+    <table>
+      <tr><th>Material</th><th>20 °C</th><th>70 °C (PVC)</th><th>90 °C (XLPE)</th></tr>
+      <tr><td>Coure</td><td>56</td><td>48</td><td>44</td></tr>
+      <tr><td>Alumini</td><td>35</td><td>30</td><td>28</td></tr>
+    </table>
+  </div>
+</section>
+</main>
+
+<footer>0962 Sistemes de potència · Recurs didàctic · Valors de taula orientatius</footer>
+
+<div id="printArea"></div>
+
+<script>
+/* ===================== Dades ===================== */
+const NORM = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120];
+const GAMMA = { Cu: { 20: 56, 70: 48, 90: 44 }, Al: { 20: 35, 70: 30, 90: 28 } };
+const INS_TEMP = { PVC: 70, XLPE: 90 };
+// Mètode B1, 30 °C (UNE-HD 60364-5-52). null = secció no habitual.
+const IADM = {
+  Cu: {
+    PVC2:  [17.5, 24, 32, 41, 57, 76, 101, 125, 151, 192, 232, 269],
+    PVC3:  [15.5, 21, 28, 36, 50, 68, 89, 110, 134, 171, 207, 239],
+    XLPE2: [23, 31, 42, 54, 75, 100, 133, 164, 198, 253, 306, 354],
+    XLPE3: [20, 28, 37, 48, 66, 88, 117, 144, 175, 222, 269, 312],
+  },
+  Al: {
+    PVC2:  [null, null, null, null, null, 61, 80, 99, 119, 151, 182, 210],
+    PVC3:  [null, null, null, null, null, 53, 70, 86, 104, 133, 161, 186],
+    XLPE2: [null, null, null, null, null, 79, 105, 130, 157, 200, 242, 281],
+    XLPE3: [null, null, null, null, null, 70, 91, 113, 136, 174, 211, 245],
+  },
+};
+const MAT_NAME = { Cu: 'coure', Al: 'alumini' };
+const DE_MAT = { Cu: 'de coure', Al: "d'alumini" };
+const SQ3 = Math.sqrt(3);
+
+/* ===================== Utilitats ===================== */
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => Number(x).toLocaleString('ca-ES', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const ft = (x, d = 2) => fmt(x, d).replace(/,/g, '{,}');           // número dins de TeX
+const num = s => parseFloat(String(s).trim().replace(',', '.'));
+const t = s => `\\(${s}\\)`;
+const dt = s => `$$${s}$$`;
+function renderMath(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {
+      delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }],
+      throwOnError: false,
+    });
+  }
+}
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rng = (min, max, step) => min + step * Math.floor(Math.random() * (Math.floor((max - min) / step) + 1));
+const val = spec => Array.isArray(spec) ? pick(spec) : rng(spec.min, spec.max, spec.step);
+
+/* ===================== Càlcul ===================== */
+function solve(d) {
+  const { sys, U, L, cos, pct, mat, ins, temp, given } = d;
+  const gamma = GAMMA[mat][temp];
+  const e = pct / 100 * U;
+  let P = d.P, I = d.I;
+  if (given === 'P') I = sys === 'mono' ? P / (U * cos) : P / (SQ3 * U * cos);
+  else P = sys === 'mono' ? U * I * cos : SQ3 * U * I * cos;
+  const Scdt = given === 'P'
+    ? (sys === 'mono' ? 2 : 1) * P * L / (gamma * U * e)
+    : (sys === 'mono' ? 2 : SQ3) * L * I * cos / (gamma * e);
+  const minS = mat === 'Al' ? 16 : 1.5;
+  const ScdtN = NORM.find(s => s >= Scdt - 1e-9 && s >= minS) ?? null;
+  const n = sys === 'mono' ? 2 : 3;
+  const col = ins + n;
+  const table = IADM[mat][col];
+  const idx = NORM.findIndex((s, i) => table[i] != null && table[i] >= I);
+  const Sint = idx >= 0 ? NORM[idx] : null;
+  const Sfin = ScdtN != null && Sint != null ? Math.max(ScdtN, Sint) : null;
+  const res = { ...d, gamma, e, P, I, Scdt, ScdtN, minS, n, col, table, Sint, Sfin };
+  if (Sfin != null) {
+    res.eReal = e * Scdt / Sfin;
+    res.pctReal = res.eReal / U * 100;
+    res.IadmFin = table[NORM.indexOf(Sfin)];
+    res.IadmInt = table[idx];
+  }
+  return res;
+}
+
+/* ===================== Resolució pas a pas ===================== */
+function steps(r) {
+  const out = [];
+  const mono = r.sys === 'mono';
+  const sysTxt = mono ? 'monofàsica' : 'trifàsica';
+
+  // 1. Dades
+  let dades = `<ul class="compact">
+    <li>Línia ${sysTxt}, ${t(`U=${ft(r.U)}\\ \\text{V}`)}${mono ? '' : ' (tensió de línia)'}</li>`;
+  if (r.given === 'P') {
+    const conv = r.Pshown && r.Pshown.unit === 'kW'
+      ? t(`P=${ft(r.Pshown.value, 3)}\\ \\text{kW}=${ft(r.P, 0)}\\ \\text{W}`)
+      : t(`P=${ft(r.P, 0)}\\ \\text{W}`);
+    dades += `<li>${conv}</li>`;
+  } else {
+    dades += `<li>${t(`I=${ft(r.I)}\\ \\text{A}`)}</li>`;
+  }
+  dades += `<li>${t(`\\cos\\varphi=${ft(r.cos)}`)}</li>
+    <li>${t(`L=${ft(r.L)}\\ \\text{m}`)}</li>
+    <li>Caiguda màxima: ${t(`${ft(r.pct)}\\ \\%`)}</li>
+    <li>Conductor ${DE_MAT[r.mat]}, aïllament ${r.ins}</li></ul>`;
+  if (r.Pshown && r.Pshown.unit === 'kW') dades += `<p>⚠️ Recorda: a les fórmules la potència va en <b>watts</b>.</p>`;
+  out.push({ title: 'Dades i unitats', html: dades });
+
+  // 2. e en volts
+  out.push({
+    title: 'Caiguda de tensió admissible en volts',
+    html: `<p>La caiguda es dona en %, però a la fórmula s'ha de posar en volts:</p>
+      ${dt(`e=\\frac{e(\\%)}{100}\\cdot U=\\frac{${ft(r.pct)}}{100}\\cdot ${ft(r.U)}=${ft(r.e, 2)}\\ \\text{V}`)}`,
+  });
+
+  // 3. gamma
+  let gtxt = `<p>Conductor ${DE_MAT[r.mat]} a ${r.temp} °C`;
+  if (r.temp === INS_TEMP[r.ins]) gtxt += ` (temperatura màxima de servei de l'aïllament ${r.ins})`;
+  gtxt += `:</p>${dt(`\\gamma=${r.gamma}\\ \\frac{\\text{m}}{\\Omega\\cdot\\text{mm}^2}`)}`;
+  out.push({ title: 'Conductivitat del conductor', html: gtxt });
+
+  // 4. Secció per caiguda de tensió
+  let s4;
+  if (r.given === 'P') {
+    s4 = mono
+      ? `<p>Línia monofàsica, coneixem la potència:</p>
+         ${dt(`S=\\frac{2\\,P\\,L}{\\gamma\\,U\\,e}=\\frac{2\\cdot ${ft(r.P, 0)}\\cdot ${ft(r.L)}}{${r.gamma}\\cdot ${ft(r.U)}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)}`
+      : `<p>Línia trifàsica, coneixem la potència:</p>
+         ${dt(`S=\\frac{P\\,L}{\\gamma\\,U\\,e}=\\frac{${ft(r.P, 0)}\\cdot ${ft(r.L)}}{${r.gamma}\\cdot ${ft(r.U)}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)}`;
+    s4 += `<details><summary>Comprovació amb la fórmula de la intensitat</summary>${mono
+      ? dt(`S=\\frac{2\\,L\\,I\\cos\\varphi}{\\gamma\\,e}=\\frac{2\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)
+      : dt(`S=\\frac{\\sqrt{3}\\,L\\,I\\cos\\varphi}{\\gamma\\,e}=\\frac{\\sqrt{3}\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)
+    }<p>Surt el mateix: les dues fórmules són equivalents.</p></details>`;
+  } else {
+    s4 = mono
+      ? `<p>Línia monofàsica, coneixem la intensitat:</p>
+         ${dt(`S=\\frac{2\\,L\\,I\\cos\\varphi}{\\gamma\\,e}=\\frac{2\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)}`
+      : `<p>Línia trifàsica, coneixem la intensitat:</p>
+         ${dt(`S=\\frac{\\sqrt{3}\\,L\\,I\\cos\\varphi}{\\gamma\\,e}=\\frac{\\sqrt{3}\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.e)}}=${ft(r.Scdt, 2)}\\ \\text{mm}^2`)}`;
+  }
+  out.push({ title: 'Secció per caiguda de tensió', html: s4 });
+
+  // 5. Normalitzada
+  let s5;
+  if (r.ScdtN == null) {
+    s5 = `<div class="bad">La secció calculada supera els 120 mm² de la taula. Caldria dividir la línia en conductors en paral·lel, acostar el quadre o admetre més caiguda.</div>`;
+  } else {
+    const list = NORM.map(s => s === r.ScdtN ? `<b class="result">[${fmt(s, 1)}]</b>` : fmt(s, 1)).join(' · ');
+    s5 = `<p>Busquem la secció normalitzada <b>igual o immediatament superior</b> a ${fmt(r.Scdt, 2)} mm² (mai inferior!):</p>
+      <p>${list}</p>
+      ${r.mat === 'Al' && r.Scdt < 16 ? `<p>En alumini la secció mínima habitual és de 16 mm².</p>` : ''}
+      <p class="big">S<sub>cdt</sub> = ${fmt(r.ScdtN, 1)} mm²</p>`;
+  }
+  out.push({ title: 'Secció normalitzada per caiguda de tensió', html: s5 });
+
+  // 6. Intensitat
+  let s6;
+  if (r.given === 'P') {
+    s6 = mono
+      ? dt(`I=\\frac{P}{U\\cos\\varphi}=\\frac{${ft(r.P, 0)}}{${ft(r.U)}\\cdot ${ft(r.cos)}}=${ft(r.I, 2)}\\ \\text{A}`)
+      : dt(`I=\\frac{P}{\\sqrt{3}\\,U\\cos\\varphi}=\\frac{${ft(r.P, 0)}}{\\sqrt{3}\\cdot ${ft(r.U)}\\cdot ${ft(r.cos)}}=${ft(r.I, 2)}\\ \\text{A}`);
+  } else {
+    s6 = `<p>La intensitat és una dada de l'enunciat: ${t(`I=${ft(r.I)}\\ \\text{A}`)}.</p>`;
+  }
+  out.push({ title: 'Intensitat de la línia', html: s6 });
+
+  // 7. Taula
+  let rows = '';
+  NORM.forEach((s, i) => {
+    const ia = r.table[i];
+    if (ia == null) return;
+    const cls = s === r.Sint ? 'hl' : (ia < r.I ? 'dim' : '');
+    rows += `<tr class="${cls}"><td>${fmt(s, 1)}</td><td>${fmt(ia, 1)}</td><td>${ia >= r.I ? '✔' : '✘'}</td></tr>`;
+  });
+  let s7 = `<p>Línia ${sysTxt} → <b>${r.n} conductors carregats</b>. Conductor ${DE_MAT[r.mat]} amb aïllament ${r.ins} → columna <b>${r.col}</b>.</p>
+    <p>Busquem la primera secció amb ${t(`I_{adm}\\ge ${ft(r.I)}\\ \\text{A}`)}:</p>
+    <table style="max-width:340px"><tr><th>S (mm²)</th><th>I<sub>adm</sub> (A)</th><th>≥ I?</th></tr>${rows}</table>`;
+  s7 += r.Sint == null
+    ? `<div class="bad">Cap secció de la taula admet aquesta intensitat.</div>`
+    : `<p class="big">S<sub>int</sub> = ${fmt(r.Sint, 1)} mm² <span class="score">(I<sub>adm</sub> = ${fmt(r.IadmInt, 1)} A ≥ ${fmt(r.I, 2)} A)</span></p>`;
+  out.push({ title: 'Secció per intensitat màxima admissible', html: s7 });
+
+  // 8. Final
+  let s8;
+  if (r.Sfin == null) {
+    s8 = `<div class="bad">No es pot resoldre amb les seccions de la taula.</div>`;
+  } else {
+    let why;
+    if (r.ScdtN > r.Sint) why = 'El criteri <b>de caiguda de tensió</b> és el més restrictiu (passa sovint en línies llargues).';
+    else if (r.Sint > r.ScdtN) why = 'El criteri <b>tèrmic (intensitat admissible)</b> és el més restrictiu (passa sovint en línies curtes amb molta intensitat).';
+    else why = 'Tots dos criteris donen la mateixa secció.';
+    s8 = `<p>Escollim la <b>més gran</b> de les dues per complir tots dos criteris:</p>
+      ${dt(`S=\\max(${ft(r.ScdtN, 1)};\\ ${ft(r.Sint, 1)})=${ft(r.Sfin, 1)}\\ \\text{mm}^2`)}
+      <p>${why}</p>
+      <div class="okbox big">Secció definitiva: ${fmt(r.Sfin, 1)} mm² (${MAT_NAME[r.mat]}, ${r.ins})</div>`;
+  }
+  out.push({ title: 'Secció definitiva', html: s8 });
+
+  // 9. Comprovació
+  if (r.Sfin != null) {
+    const f = r.given === 'P'
+      ? (mono
+        ? `e_{real}=\\frac{2\\,P\\,L}{\\gamma\\,U\\,S}=\\frac{2\\cdot ${ft(r.P, 0)}\\cdot ${ft(r.L)}}{${r.gamma}\\cdot ${ft(r.U)}\\cdot ${ft(r.Sfin, 1)}}`
+        : `e_{real}=\\frac{P\\,L}{\\gamma\\,U\\,S}=\\frac{${ft(r.P, 0)}\\cdot ${ft(r.L)}}{${r.gamma}\\cdot ${ft(r.U)}\\cdot ${ft(r.Sfin, 1)}}`)
+      : (mono
+        ? `e_{real}=\\frac{2\\,L\\,I\\cos\\varphi}{\\gamma\\,S}=\\frac{2\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.Sfin, 1)}}`
+        : `e_{real}=\\frac{\\sqrt{3}\\,L\\,I\\cos\\varphi}{\\gamma\\,S}=\\frac{\\sqrt{3}\\cdot ${ft(r.L)}\\cdot ${ft(r.I)}\\cdot ${ft(r.cos)}}{${r.gamma}\\cdot ${ft(r.Sfin, 1)}}`);
+    out.push({
+      title: 'Comprovació final',
+      html: `<p>Caiguda de tensió real amb la secció escollida:</p>
+        ${dt(`${f}=${ft(r.eReal, 2)}\\ \\text{V}`)}
+        ${dt(`e_{real}(\\%)=\\frac{${ft(r.eReal, 2)}}{${ft(r.U)}}\\cdot 100=${ft(r.pctReal, 2)}\\ \\% \\le ${ft(r.pct)}\\ \\%\\ \\checkmark`)}
+        <p>Intensitat: ${t(`I_{adm}(${ft(r.Sfin, 1)}\\ \\text{mm}^2)=${ft(r.IadmFin, 1)}\\ \\text{A}\\ \\ge ${ft(r.I)}\\ \\text{A}\\ \\checkmark`)}</p>`,
+    });
+  }
+  return out;
+}
+
+function stepsHTML(list, upto = list.length) {
+  return list.slice(0, upto).map((s, i) =>
+    `<div class="step"><h4><span class="num">${i + 1}</span>${s.title}</h4><div class="body">${s.html}</div></div>`).join('');
+}
+
+/* ===================== Pestanyes ===================== */
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('active', s.id === b.dataset.tab));
+}));
+
+/* ===================== Taules ===================== */
+function buildTable(mat) {
+  let h = '<table><tr><th>S (mm²)</th><th>PVC2</th><th>PVC3</th><th>XLPE2</th><th>XLPE3</th></tr>';
+  NORM.forEach((s, i) => {
+    if (IADM[mat].PVC2[i] == null) return;
+    h += `<tr><td><b>${fmt(s, 1)}</b></td>${['PVC2', 'PVC3', 'XLPE2', 'XLPE3'].map(c => `<td>${fmt(IADM[mat][c][i], 1)}</td>`).join('')}</tr>`;
+  });
+  return h + '</table>';
+}
+$('tCu').innerHTML = buildTable('Cu');
+$('tAl').innerHTML = buildTable('Al');
+
+/* ===================== Laboratori ===================== */
+function lab() {
+  const sys = $('labSys').value, mono = sys === 'mono';
+  const U = mono ? 230 : 400, P = +$('labP').value, L = +$('labL').value;
+  const S = NORM[+$('labS').value], cos = +$('labC').value, lim = +$('labLim').value;
+  const gamma = 48;
+  const e = (mono ? 2 : 1) * P * L / (gamma * U * S);
+  const pct = e / U * 100;
+  const I = mono ? P / (U * cos) : P / (SQ3 * U * cos);
+  const Iadm = IADM.Cu[mono ? 'PVC2' : 'PVC3'][+$('labS').value];
+  $('labPv').textContent = P >= 1000 ? fmt(P / 1000, 1) + ' kW' : P + ' W';
+  $('labLv').textContent = L + ' m';
+  $('labSv').textContent = fmt(S, 1) + ' mm²';
+  $('labCv').textContent = fmt(cos, 2);
+  const scale = Math.max(lim * 2, 10);
+  const be = $('labBarE');
+  be.style.width = Math.min(pct / scale * 100, 100) + '%';
+  be.style.background = pct <= lim ? 'var(--ok)' : 'var(--bad)';
+  $('labMarkE').style.left = (lim / scale * 100) + '%';
+  $('labOutE').innerHTML = `<div class="kv"><span>Caiguda</span><b>${fmt(e, 2)} V (${fmt(pct, 2)} %)</b></div>
+    <div class="kv"><span>Tensió al receptor</span><b>${fmt(U - e, 1)} V</b></div>
+    <div class="kv"><span>Límit</span><b>${fmt(lim, 1)} % = ${fmt(lim / 100 * U, 2)} V</b></div>`;
+  const ratio = I / Iadm;
+  const bi = $('labBarI');
+  bi.style.width = Math.min(ratio * 100 / 1.5, 100) + '%';
+  bi.parentElement.querySelector('.mark').style.left = (100 / 1.5) + '%';
+  bi.style.background = ratio <= 0.8 ? 'var(--ok)' : ratio <= 1 ? 'var(--warn)' : 'var(--bad)';
+  $('labOutI').innerHTML = `<div class="kv"><span>Intensitat</span><b>${fmt(I, 2)} A</b></div>
+    <div class="kv"><span>I<sub>adm</sub> (${fmt(S, 1)} mm², ${mono ? 'PVC2' : 'PVC3'})</span><b>${fmt(Iadm, 1)} A</b></div>
+    <div class="kv"><span>Càrrega tèrmica</span><b>${fmt(ratio * 100, 0)} %</b></div>`;
+  const msgs = [];
+  if (pct > lim) msgs.push(`<div class="bad">❌ La caiguda de tensió supera el ${fmt(lim, 1)} %. Augmenta la secció o redueix la longitud.</div>`);
+  if (ratio > 1) msgs.push(`<div class="bad">🔥 El conductor s'escalfa massa: I = ${fmt(I, 1)} A > I<sub>adm</sub> = ${fmt(Iadm, 1)} A. Cal més secció.</div>`);
+  if (!msgs.length) msgs.push(`<div class="okbox">✅ Aquesta secció compleix tots dos criteris.</div>`);
+  $('labMsg').innerHTML = msgs.join('');
+}
+['labSys', 'labP', 'labL', 'labS', 'labC', 'labLim'].forEach(id => $(id).addEventListener('input', lab));
+lab();
+
+/* ===================== Calculadora ===================== */
+function calc() {
+  const sys = $('cSys').value, given = $('cGiven').value;
+  $('cPwrap').style.display = given === 'P' ? '' : 'none';
+  $('cIwrap').style.display = given === 'I' ? '' : 'none';
+  const Pval = num($('cP').value), Pmul = +$('cPu').value;
+  const d = {
+    sys, given,
+    U: num($('cU').value), L: num($('cL').value), cos: num($('cCos').value), pct: num($('cPct').value),
+    mat: $('cMat').value, ins: $('cIns').value, temp: +$('cT').value,
+    P: Pval * Pmul, I: num($('cI').value),
+    Pshown: { value: Pval, unit: Pmul === 1000 ? 'kW' : 'W' },
+  };
+  const errs = [];
+  for (const [k, n] of [['U', 'la tensió'], ['L', 'la longitud'], ['cos', 'el cos φ'], ['pct', 'la caiguda màxima']])
+    if (!(d[k] > 0)) errs.push(`Revisa ${n}.`);
+  if (given === 'P' && !(d.P > 0)) errs.push('Revisa la potència.');
+  if (given === 'I' && !(d.I > 0)) errs.push('Revisa la intensitat.');
+  if (d.cos > 1) errs.push('El cos φ no pot ser superior a 1.');
+  if (errs.length) { $('cErr').innerHTML = `<div class="warn">${errs.join('<br>')}</div>`; $('cOut').innerHTML = ''; return; }
+  const warns = [];
+  if (sys === 'tri' && d.U < 300) warns.push('En trifàsic s\'acostuma a treballar amb la tensió de línia (400 V). Segur que 230 V és correcte?');
+  if (sys === 'mono' && d.U > 300) warns.push('En monofàsic la tensió habitual és 230 V.');
+  if (given === 'P' && Pmul === 1 && d.P < 50) warns.push('Potència molt petita: potser l\'has escrit en kW? Canvia la unitat.');
+  $('cErr').innerHTML = warns.map(w => `<div class="warn">${w}</div>`).join('');
+  const out = $('cOut');
+  out.innerHTML = stepsHTML(steps(solve(d)));
+  renderMath(out);
+}
+$('cSys').addEventListener('change', () => { $('cU').value = $('cSys').value === 'mono' ? '230' : '400'; calc(); });
+$('cIns').addEventListener('change', () => { $('cT').value = String(INS_TEMP[$('cIns').value]); calc(); });
+['cU', 'cGiven', 'cP', 'cPu', 'cI', 'cCos', 'cL', 'cPct', 'cMat', 'cT'].forEach(id => $(id).addEventListener('input', calc));
+
+/* ===================== Generador d'exercicis ===================== */
+const CTX = {
+  mono: [
+    { nom: "un circuit d'enllumenat", P: { min: 800, max: 3000, step: 100 }, cos: [1, 0.95, 0.9], pct: [3], L: { min: 10, max: 60, step: 5 } },
+    { nom: "un circuit de preses de corrent d'ús general", P: { min: 2000, max: 3600, step: 100 }, cos: [1, 0.95, 0.9], pct: [3, 5], L: { min: 10, max: 50, step: 5 } },
+    { nom: 'una cuina elèctrica', P: { min: 3500, max: 5400, step: 100 }, cos: [1], pct: [3, 5], L: { min: 8, max: 35, step: 1 } },
+    { nom: 'una bomba de calor', P: { min: 2000, max: 4500, step: 100 }, cos: [0.8, 0.85, 0.9], pct: [5], L: { min: 10, max: 60, step: 5 } },
+    { nom: "la derivació individual d'un habitatge", P: [5750, 7360, 9200], cos: [1], pct: [1, 1.5], L: { min: 8, max: 30, step: 1 } },
+    { nom: 'un taller amb maquinària monofàsica', P: { min: 3000, max: 7000, step: 250 }, cos: [0.85, 0.9], pct: [5], L: { min: 20, max: 80, step: 5 } },
+    { nom: "un escalfador d'aigua (termo)", P: { min: 1200, max: 3000, step: 100 }, cos: [1], pct: [3, 5], L: { min: 5, max: 30, step: 1 } },
+  ],
+  tri: [
+    { nom: "un motor d'inducció", P: { min: 3000, max: 30000, step: 500 }, cos: [0.8, 0.82, 0.85, 0.88], pct: [5], L: { min: 20, max: 120, step: 5 } },
+    { nom: 'un quadre secundari d\'una nau industrial', P: { min: 15000, max: 60000, step: 1000 }, cos: [0.85, 0.9], pct: [3, 5], L: { min: 20, max: 90, step: 5 } },
+    { nom: "la línia d'enllumenat d'una nau", P: { min: 4000, max: 15000, step: 500 }, cos: [0.9, 1], pct: [3], L: { min: 30, max: 120, step: 10 } },
+    { nom: 'un forn industrial', P: { min: 10000, max: 40000, step: 1000 }, cos: [1], pct: [5], L: { min: 15, max: 80, step: 5 } },
+    { nom: 'un compressor', P: { min: 5500, max: 22000, step: 500 }, cos: [0.85, 0.87], pct: [5], L: { min: 20, max: 100, step: 5 } },
+    { nom: 'una bomba de reg', P: { min: 4000, max: 15000, step: 500 }, cos: [0.8, 0.85], pct: [5], L: { min: 60, max: 200, step: 10 } },
+  ],
+};
+
+function generate(sysSel, lvl) {
+  for (let tries = 0; tries < 300; tries++) {
+    const sys = sysSel === 'any' ? pick(['mono', 'tri']) : sysSel;
+    const c = pick(CTX[sys]);
+    const ins = lvl === 1 ? 'PVC' : pick(['PVC', 'XLPE']);
+    const mat = lvl === 3 && Math.random() < 0.35 ? 'Al' : 'Cu';
+    const given = lvl === 3 && Math.random() < 0.5 ? 'I' : 'P';
+    const U = sys === 'mono' ? 230 : 400;
+    const d = { sys, U, L: val(c.L), cos: pick(c.cos), pct: pick(c.pct), mat, ins, temp: INS_TEMP[ins], given, ctx: c.nom };
+    let P = val(c.P);
+    if (mat === 'Al') P *= 3;                         // l'alumini es fa servir en línies de més potència
+    if (given === 'P') {
+      d.P = P;
+      d.Pshown = P >= 10000 || sys === 'tri' ? { value: P / 1000, unit: 'kW' } : { value: P, unit: 'W' };
+    } else {
+      const I = sys === 'mono' ? P / (U * d.cos) : P / (SQ3 * U * d.cos);
+      d.I = Math.round(I * 10) / 10;
+    }
+    const r = solve(d);
+    if (r.Sfin == null || r.Sfin > 95) continue;
+    if (lvl >= 2 && r.Sfin <= 1.5 && Math.random() < 0.7) continue;  // evitem massa exercicis trivials
+    return r;
+  }
+  return null;
+}
+
+function statement(r) {
+  const mono = r.sys === 'mono';
+  const dada = r.given === 'P'
+    ? `de <b>${r.Pshown.unit === 'kW' ? fmt(r.Pshown.value, 3) + ' kW' : fmt(r.Pshown.value, 0) + ' W'}</b> i factor de potència <b>cos φ = ${fmt(r.cos)}</b>`
+    : `que consumeix <b>${fmt(r.I, 1)} A</b> amb un factor de potència <b>cos φ = ${fmt(r.cos)}</b>`;
+  return `Es vol alimentar ${r.ctx} ${dada}. La distància des del quadre de protecció és de <b>${fmt(r.L)} m</b>.
+    La línia és <b>${mono ? 'monofàsica a 230 V' : 'trifàsica a 400 V'}</b> i es fa amb conductors unipolars <b>${DE_MAT[r.mat]}</b>
+    amb aïllament <b>${r.ins}</b>, instal·lats en tub sobre paret (mètode B1).
+    La caiguda de tensió màxima admissible és del <b>${fmt(r.pct)} %</b>.<br><br>
+    Calcula la secció dels conductors pels criteris de caiguda de tensió i d'intensitat màxima admissible, i fes la comprovació final.`;
+}
+
+let cur = null, curSteps = [], shown = 0;
+const score = JSON.parse(localStorage.getItem('calcSeccions.score') || '{"fets":0,"ok":0}');
+function showScore() {
+  $('eScore').textContent = score.fets ? `Exercicis comprovats: ${score.fets} · Resolts correctament: ${score.ok}` : '';
+}
+showScore();
+
+const FIELDS = [
+  { k: 'e', label: 'Caiguda admissible e (V)', type: 'num' },
+  { k: 'I', label: 'Intensitat I (A)', type: 'num' },
+  { k: 'Scdt', label: 'Secció per caiguda de tensió calculada (mm²)', type: 'num' },
+  { k: 'ScdtN', label: 'Secció normalitzada per caiguda de tensió (mm²)', type: 'sel' },
+  { k: 'Sint', label: 'Secció per intensitat admissible (mm²)', type: 'sel' },
+  { k: 'Sfin', label: 'Secció definitiva (mm²)', type: 'sel' },
+];
+
+function newExercise() {
+  const r = generate($('eSys').value, +$('eLvl').value);
+  if (!r) { alert("No s'ha pogut generar un exercici. Torna-ho a provar."); return; }
+  cur = r; curSteps = steps(r); shown = 0; cur.checked = false;
+  $('eCard').style.display = '';
+  $('eSolCard').style.display = 'none';
+  $('eFeedback').innerHTML = '';
+  $('eStmt').innerHTML = statement(r);
+  const opts = '<option value="">—</option>' + NORM.map(s => `<option value="${s}">${fmt(s, 1)}</option>`).join('');
+  $('eAns').innerHTML = FIELDS.map(f => {
+    if (f.k === 'I' && r.given === 'I')
+      return `<label>${f.label}<input value="${fmt(r.I, 1)} (dada)" disabled><span class="fb"></span></label>`;
+    return `<label data-k="${f.k}">${f.label}${f.type === 'sel' ? `<select>${opts}</select>` : '<input inputmode="decimal" autocomplete="off">'}<span class="fb"></span></label>`;
+  }).join('');
+  $('eHint').disabled = false;
+  $('eCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function checkExercise() {
+  if (!cur) return;
+  let allOk = true, answered = 0;
+  $('eAns').querySelectorAll('label[data-k]').forEach(lab => {
+    const k = lab.dataset.k, el = lab.querySelector('input,select'), fb = lab.querySelector('.fb');
+    const raw = el.value.trim();
+    lab.classList.remove('ok', 'ko'); fb.className = 'fb'; fb.textContent = '';
+    if (!raw) { allOk = false; return; }
+    answered++;
+    const v = num(raw), ref = cur[k];
+    const isSel = el.tagName === 'SELECT';
+    const ok = isSel ? Math.abs(v - ref) < 1e-9 : Math.abs(v - ref) <= Math.max(0.02 * Math.abs(ref), 0.01);
+    lab.classList.add(ok ? 'ok' : 'ko');
+    fb.classList.add(ok ? 'ok' : 'ko');
+    fb.textContent = ok ? '✔ Correcte' : hint(k, v, ref);
+    if (!ok) allOk = false;
+  });
+  if (!answered) { $('eFeedback').innerHTML = '<div class="warn">Omple almenys una resposta.</div>'; return; }
+  if (!cur.checked) { score.fets++; if (allOk) score.ok++; cur.checked = true; localStorage.setItem('calcSeccions.score', JSON.stringify(score)); showScore(); }
+  $('eFeedback').innerHTML = allOk
+    ? '<div class="okbox">🎉 Totes les respostes són correctes! Pots revisar la solució o generar un altre exercici.</div>'
+    : '<div class="warn">Hi ha respostes per revisar. Fes servir «Mostra el pas següent» si necessites ajuda.</div>';
+}
+
+function hint(k, v, ref) {
+  const r = cur, ratio = v / ref;
+  const near = x => Math.abs(ratio - x) < 0.03;
+  if (k === 'e') {
+    if (Math.abs(v - r.pct) < 1e-6) return '✘ Has posat el %: cal passar-ho a volts.';
+    return '✘ Recorda: e = (%/100)·U';
+  }
+  if (k === 'I') {
+    if (r.sys === 'tri' && near(SQ3)) return '✘ Has oblidat el √3 de la fórmula trifàsica?';
+    if (near(1 / r.cos) || near(r.cos)) return '✘ Revisa el cos φ.';
+    if (near(1 / 1000) || near(1000)) return '✘ Revisa les unitats de la potència (W).';
+    return '✘ Revisa la fórmula de la intensitat.';
+  }
+  if (k === 'Scdt') {
+    if (near(1 / 1000) || near(1000)) return '✘ Potència en kW? A la fórmula va en W.';
+    if (r.sys === 'mono' && near(0.5)) return '✘ Has oblidat el 2 de la fórmula monofàsica?';
+    if (r.sys === 'tri' && near(2)) return '✘ En trifàsic no hi ha el 2.';
+    if (r.sys === 'tri' && (near(SQ3) || near(1 / SQ3))) return '✘ Revisa el √3.';
+    if (near(r.e / r.pct) || near(r.pct / r.e)) return '✘ e ha d\'anar en volts, no en %.';
+    const gs = Object.values(GAMMA[r.mat]).filter(g => g !== r.gamma);
+    if (gs.some(g => near(r.gamma / g))) return '✘ Revisa la conductivitat γ (temperatura).';
+    return '✘ Revisa la substitució a la fórmula.';
+  }
+  if (k === 'ScdtN') return v < ref ? '✘ Sempre la normalitzada immediatament superior.' : '✘ Massa gran: tria la immediatament superior.';
+  if (k === 'Sint') return `✘ Columna ${r.col}: primera secció amb Iadm ≥ I.`;
+  if (k === 'Sfin') return '✘ Ha de complir tots dos criteris: la més gran.';
+  return '✘';
+}
+
+function revealNext() {
+  if (!cur) return;
+  shown = Math.min(shown + 1, curSteps.length);
+  renderSol();
+}
+function revealAll() {
+  if (!cur) return;
+  shown = curSteps.length;
+  renderSol();
+}
+function renderSol() {
+  $('eSolCard').style.display = '';
+  $('eSol').innerHTML = stepsHTML(curSteps, shown) +
+    (shown < curSteps.length ? `<p class="score">Pas ${shown} de ${curSteps.length}. Intenta fer el següent abans de mirar-lo!</p>` : '');
+  $('eHint').disabled = shown >= curSteps.length;
+  renderMath($('eSol'));
+}
+
+$('eNew').addEventListener('click', newExercise);
+$('eCheck').addEventListener('click', checkExercise);
+$('eHint').addEventListener('click', revealNext);
+$('eAll').addEventListener('click', revealAll);
+
+/* ===================== Fitxa imprimible ===================== */
+$('ePrint').addEventListener('click', () => {
+  const sysSel = $('eSys').value, lvl = +$('eLvl').value;
+  const list = [];
+  for (let i = 0; i < 6; i++) { const r = generate(sysSel, lvl); if (r) list.push(r); }
+  const pa = $('printArea');
+  pa.innerHTML = `<h2>Càlcul de seccions — Fitxa d'exercicis</h2>
+    <p>Nom: ______________________________ &nbsp; Data: ____________</p>
+    <p class="score">Taula d'intensitats admissibles: mètode B1, 30 °C. Conductivitats: Cu 56/48/44, Al 35/30/28 m/(Ω·mm²) a 20/70/90 °C.</p>
+    ${list.map((r, i) => `<div class="ex"><h3>Exercici ${i + 1}</h3><p>${statement(r)}</p></div>`).join('')}
+    <div class="pb"></div>
+    <h2>Solucions</h2>
+    ${list.map((r, i) => `<div><h3>Exercici ${i + 1}</h3><p><i>${statement(r)}</i></p>${stepsHTML(steps(r))}</div>`).join('')}`;
+  renderMath(pa);
+  document.body.classList.add('printing');
+  window.print();
+  document.body.classList.remove('printing');
+});
+
+/* ===================== Inici ===================== */
+window.addEventListener('load', () => { renderMath($('teoria')); calc(); });
+</script>
+</body>
+</html>
